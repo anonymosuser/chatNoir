@@ -21,8 +21,14 @@
     cursor: default;
 }
 
+.cat-path-index {    
+    text-align: center;
+    height: 20px;
+    line-height: 38px;
+}
+
 #main {
     position: relative;
     top: 20px;
     left: 20px;
-  }
+}
