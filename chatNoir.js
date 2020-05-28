@@ -89,12 +89,21 @@ function generateCatPath() {
         return allMoves;
     }
 
-    let m1 = doit([catPosition], 1);
-    let m2 = doit(m1, 2);
-    let m3 = doit(m2, 3);
-    let m4 = doit(m3, 4);
-    let m5 = doit(m4, 5);
-    let m6 = doit(m5, 6);
+    
+    let i = 0;
+    let m = [catPosition];
+
+    while (i < 14) {
+        i++;
+        m = doit(m, i)  
+    }
+    // let m0 = [catPosition];
+    // let m1 = doit(m0, 1);
+    // let m2 = doit(m1, 2);
+    // let m3 = doit(m2, 3);
+    // let m4 = doit(m3, 4);
+    // let m5 = doit(m4, 5);
+    // let m6 = doit(m5, 6);
 
 
     
@@ -117,7 +126,7 @@ function handleTileClick(i, j) {
 
     if (moveCount % 2) {
         catPosition = { i, j };
-
+        catPath = generateCatPath();
         render();
         return;
     }
