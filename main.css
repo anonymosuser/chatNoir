@@ -20,13 +20,35 @@
     background: orangered;
     cursor: default;
 }
+.cat-path-data {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    border: 1px solid pink;
+    width: 600px;
+    background: white;
+    display: none;
+}
 
 .cat-path-index {    
     text-align: center;
     height: 20px;
     line-height: 38px;
+    position: relative;
+    z-index: -1;
+    z-index: 22;
 }
-
+.cat-path-index-text{
+    position: relative;
+    z-index: -1;
+    display: inline-block;
+}
+.cat-path-index:hover .cat-path-data {
+    display: block;
+}
+.tile-next-move{
+    background-color: brown;
+}
 #main {
     position: relative;
     top: 20px;

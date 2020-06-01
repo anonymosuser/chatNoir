@@ -24,9 +24,9 @@ function generateDefaultAcitveTiles() {
 }
 let activeTiles = generateDefaultAcitveTiles();
 
-function getMoves(catPosition) {
-    let catI = catPosition.i;
-    let catJ = catPosition.j;
+function getMoves(prevPosition) {
+    let catI = prevPosition.i;
+    let catJ = prevPosition.j;
 
     let moves = [
         { i: catI + 1, j: catJ },
@@ -42,10 +42,10 @@ function getMoves(catPosition) {
         moves.push({ i: catI + 1, j: catJ + 1 })
     }
 
-    return moves;
+    return moves.map(move => ({ ...move, prevPosition }));
 }
 
-function generateCatPath() {
+function getCatMove() {
     let catPath = [];
     catPath[catPosition.i] = [];
     catPath[catPosition.i][catPosition.j] = '0';
@@ -65,11 +65,11 @@ function generateCatPath() {
     //     catPath[move.i][move.j] = 1;
     // });
 
-    function doit (moves, index) {
+    function doit(moves, index) {
         let allMoves = [];
         moves.forEach(move => {
             let newMoves = getMoves(move);
-    
+
             newMoves = newMoves.filter(move => {
                 // if this square is take - move is not possible
                 let { i, j } = move;
@@ -78,24 +78,39 @@ function generateCatPath() {
                 }
                 return true
             });
-    
+
             newMoves.forEach(move => {
-                catPath[move.i] = catPath[move.i] || [];
-                catPath[move.i][move.j] = index;
+                let { i, j, prevPosition } = move;
+                catPath[i] = catPath[i] || [];
+                catPath[i][j] = { index, prevPosition };
+
+                if (!done && (i === 0 || j === 0 || i === tilesCount - 1 || j === tilesCount - 1)) {
+                    done = true;
+                    let current  =prevPosition;
+                    // nextCatsMove = ...;
+                    while (current.prevPosition) {
+                        current = current.prevPosition;
+                        if (current.prevPosition) {
+                            nextCatsMove = current;
+                        }
+                    }
+                }
             });
 
             allMoves = [...allMoves, ...newMoves];
         })
+
         return allMoves;
     }
 
-    
+    let nextCatsMove;
     let i = 0;
     let m = [catPosition];
-
-    while (i < 14) {
+    let done = false;
+    let foundPath = null;
+    while (i < 44 && !done) {
         i++;
-        m = doit(m, i)  
+        m = doit(m, i)
     }
     // let m0 = [catPosition];
     // let m1 = doit(m0, 1);
@@ -106,7 +121,7 @@ function generateCatPath() {
     // let m6 = doit(m5, 6);
 
 
-    
+
 
 
 
@@ -114,10 +129,11 @@ function generateCatPath() {
 
     // merge catPath and activeMoves
 
-    return catPath;
+    return nextCatsMove;
 }
 
-let catPath = generateCatPath();
+// let catPath = generateCatPath();
+let catMove = getCatMove();
 console.log('catpos', catPosition);
 
 function handleTileClick(i, j) {
@@ -126,13 +142,16 @@ function handleTileClick(i, j) {
 
     if (moveCount % 2) {
         catPosition = { i, j };
-        catPath = generateCatPath();
+        
+        catMove = getCatMove();
         render();
         return;
     }
 
     activeTiles[i] = activeTiles[i] || [];
     activeTiles[i][j] = 1;
+
+    catMove = getCatMove();
     render();
 }
 
@@ -200,11 +219,24 @@ const render = () => {
             } else if (clickHandler) {
                 activeClass += ' possible-move';
             }
-            let catPathIndex = (catPath[i] && catPath[i][j]) || '';
+            // let catPathIndex = '';
+            // let catPathData = '';
+            // if (catPath[i] && catPath[i][j]) {
+            //     catPathIndex = catPath[i][j].index || catPath[i][j];
+            //     catPathData = '';
+            //     let current = catPath[i][j];
+
+            //     while (current.prevPosition) {
+            //         catPathData += `(${current.prevPosition.i}, ${current.prevPosition.j})`
+            //         current = current.prevPosition;
+            //     }
+            // }
+            let isNextMoveClass = '';
+            if (catMove.i === i && catMove.j === j) {
+                isNextMoveClass = 'tile-next-move';
+            }
             renderHtml += `
-                <div onclick="${clickHandler}" class="tile ${activeClass}" style="left: ${x}px; top: ${y}px;">
-                    <div class="cat-path-index "> ${catPathIndex}</div>
-                </div>
+                <div onclick="${clickHandler}" class="tile ${activeClass} ${isNextMoveClass}" style="left: ${x}px; top: ${y}px;"></div>
             `;
         }
     }
