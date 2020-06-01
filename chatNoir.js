@@ -86,7 +86,7 @@ function getCatMove() {
 
                 if (!done && (i === 0 || j === 0 || i === tilesCount - 1 || j === tilesCount - 1)) {
                     done = true;
-                    let current  =prevPosition;
+                    let current = move;
                     // nextCatsMove = ...;
                     while (current.prevPosition) {
                         current = current.prevPosition;
@@ -125,8 +125,6 @@ function getCatMove() {
 
 
 
-
-
     // merge catPath and activeMoves
 
     return nextCatsMove;
@@ -140,18 +138,23 @@ function handleTileClick(i, j) {
     console.log(i, j);
     moveCount++;
 
-    if (moveCount % 2) {
-        catPosition = { i, j };
-        
-        catMove = getCatMove();
-        render();
-        return;
-    }
+    // if (moveCount % 2) {
+    //     catPosition = { i, j };
+
+    //     catMove = getCatMove();
+    //     render();
+    //     return;
+    // }
 
     activeTiles[i] = activeTiles[i] || [];
     activeTiles[i][j] = 1;
 
     catMove = getCatMove();
+    if (!catMove) {
+        debugger;
+        catMove = getCatMove();
+    }
+    catPosition = { i: catMove.i, j: catMove.j };
     render();
 }
 
@@ -184,53 +187,10 @@ const render = () => {
                 clickHandler = '';
             }
 
-            if (!(moveCount % 2)) {
-                // cats move
-                let catI = catPosition.i;
-                let catJ = catPosition.j;
-
-                let moves = [
-                    { i: catI + 1, j: catJ },
-                    { i: catI - 1, j: catJ },
-                    { i: catI, j: catJ + 1 },
-                    { i: catI, j: catJ - 1 }
-                ]
-                if (catJ % 2) {
-                    moves.push({ i: catI - 1, j: catJ - 1 })
-                    moves.push({ i: catI - 1, j: catJ + 1 })
-                } else {
-                    moves.push({ i: catI + 1, j: catJ - 1 })
-                    moves.push({ i: catI + 1, j: catJ + 1 })
-                }
-
-                // if this tile is possible for cat to move - 
-                let isMovePossible = false;
-                for (let k = 0; k < moves.length; k++) {
-                    if (i === moves[k].i && j === moves[k].j) {
-                        isMovePossible = true;
-                    }
-                }
-
-                if (!isMovePossible) {
-                    clickHandler = ''
-                } else {
-                    activeClass += ' possible-move';
-                }
-            } else if (clickHandler) {
+            if (clickHandler) {
                 activeClass += ' possible-move';
             }
-            // let catPathIndex = '';
-            // let catPathData = '';
-            // if (catPath[i] && catPath[i][j]) {
-            //     catPathIndex = catPath[i][j].index || catPath[i][j];
-            //     catPathData = '';
-            //     let current = catPath[i][j];
 
-            //     while (current.prevPosition) {
-            //         catPathData += `(${current.prevPosition.i}, ${current.prevPosition.j})`
-            //         current = current.prevPosition;
-            //     }
-            // }
             let isNextMoveClass = '';
             if (catMove.i === i && catMove.j === j) {
                 isNextMoveClass = 'tile-next-move';
