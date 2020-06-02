@@ -1,11 +1,9 @@
-let catCaptured = false
-// let numOfSartingSquars = 4+math.floor(6*(Math.random))
 let tilesCount = 20;
 let tileRadius = 40;
 let tileMargin = 5;
 let defaultActiveTilesCount = 20;
-let catPosition = { i: Math.round(tilesCount / 2), j: Math.round(tilesCount / 2) };
-let moveCount = 1;
+let catPosition;
+let activeTiles;
 
 function generateDefaultAcitveTiles() {
     let activeTiles = [];
@@ -22,7 +20,6 @@ function generateDefaultAcitveTiles() {
 
     return activeTiles;
 }
-let activeTiles = generateDefaultAcitveTiles();
 
 function getMoves(prevPosition) {
     let catI = prevPosition.i;
@@ -49,21 +46,6 @@ function getCatMove() {
     let catPath = [];
     catPath[catPosition.i] = [];
     catPath[catPosition.i][catPosition.j] = '0';
-    // // cats move
-    // let moves = getMoves(catPosition);
-
-    // moves = moves.filter(move => {
-    //     // if this square is take - move is not possible
-    //     let { i, j } = move;
-    //     if ((activeTiles[i] && activeTiles[i][j]) || (catPath[i] && catPath[i][j])) {
-    //         return false;
-    //     }
-    //     return true
-    // });
-    // moves.forEach(move => {
-    //     catPath[move.i] = catPath[move.i] || [];
-    //     catPath[move.i][move.j] = 1;
-    // });
 
     function doit(moves, index) {
         let allMoves = [];
@@ -71,13 +53,28 @@ function getCatMove() {
             let newMoves = getMoves(move);
 
             newMoves = newMoves.filter(move => {
-                // if this square is take - move is not possible
                 let { i, j } = move;
                 if ((activeTiles[i] && activeTiles[i][j]) || (catPath[i] && catPath[i][j])) {
                     return false;
                 }
                 return true
             });
+
+            if (index === 1) {
+                if (newMoves.length) {
+                    nextCatsMove = newMoves[0];
+                } else {
+                    done = true;
+                    nextCatsMove = move;
+
+                    setTimeout(() => {
+                        alert('You Won!');
+                        init();
+                        render();
+                    }, 100);
+                    return;
+                }
+            }
 
             newMoves.forEach(move => {
                 let { i, j, prevPosition } = move;
@@ -87,7 +84,7 @@ function getCatMove() {
                 if (!done && (i === 0 || j === 0 || i === tilesCount - 1 || j === tilesCount - 1)) {
                     done = true;
                     let current = move;
-                    // nextCatsMove = ...;
+
                     while (current.prevPosition) {
                         current = current.prevPosition;
                         if (current.prevPosition) {
@@ -107,25 +104,21 @@ function getCatMove() {
     let i = 0;
     let m = [catPosition];
     let done = false;
-    let foundPath = null;
+
     while (i < 44 && !done) {
         i++;
         m = doit(m, i)
     }
-    // let m0 = [catPosition];
-    // let m1 = doit(m0, 1);
-    // let m2 = doit(m1, 2);
-    // let m3 = doit(m2, 3);
-    // let m4 = doit(m3, 4);
-    // let m5 = doit(m4, 5);
-    // let m6 = doit(m5, 6);
-
-
-
-
-
-
-    // merge catPath and activeMoves
+    if (nextCatsMove) {
+        let { i, j } = nextCatsMove;
+        if ((i === 0 || j === 0 || i === tilesCount - 1 || j === tilesCount - 1)) {
+            setTimeout(() => {
+                alert('You lost...');
+                init();
+                render();
+            }, 100);
+        }
+    }
 
     return nextCatsMove;
 }
@@ -135,17 +128,6 @@ let catMove = getCatMove();
 console.log('catpos', catPosition);
 
 function handleTileClick(i, j) {
-    console.log(i, j);
-    moveCount++;
-
-    // if (moveCount % 2) {
-    //     catPosition = { i, j };
-
-    //     catMove = getCatMove();
-    //     render();
-    //     return;
-    // }
-
     activeTiles[i] = activeTiles[i] || [];
     activeTiles[i][j] = 1;
 
@@ -158,19 +140,10 @@ function handleTileClick(i, j) {
     render();
 }
 
-// if (catCaptured) {
-//     render();
-// }
 
-// if (catEcaped) {
-//     render();
-// }
-
-
-/// TODO: cleanup
 const render = () => {
     let renderHtml = ``;
-    //add head
+
     for (let i = 0; i < tilesCount; i++) {
         for (let j = 0; j < tilesCount; j++) {
             let x = i * (tileRadius + tileMargin) + ((j % 2) ? 0 : (tileRadius + tileMargin) / 2);
@@ -207,4 +180,10 @@ const render = () => {
     needRerender = false;
 };
 
+function init() {
+    catPosition = { i: Math.round(tilesCount / 2), j: Math.round(tilesCount / 2) };
+    activeTiles = generateDefaultAcitveTiles();
+}
+
+init();
 render();
