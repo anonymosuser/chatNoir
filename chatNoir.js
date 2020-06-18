@@ -2,8 +2,8 @@ let tilesCount = 20;
 let tileRadius = 40;
 let tileMargin = 5;
 let defaultActiveTilesCount = 20;
-let catPosition;
-let activeTiles;
+let catPosition = { i: Math.round(tilesCount / 2), j: Math.round(tilesCount / 2) };
+let activeTiles = generateDefaultAcitveTiles();
 
 function generateDefaultAcitveTiles() {
     let activeTiles = [];
@@ -185,5 +185,4 @@ function init() {
     activeTiles = generateDefaultAcitveTiles();
 }
 
-init();
 render();
